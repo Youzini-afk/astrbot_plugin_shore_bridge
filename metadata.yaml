@@ -1,6 +1,6 @@
 name: astrbot_plugin_shore_bridge
-display_name: Shore Memory Bridge
-description: Connect AstrBot to Shore Memory for long-term recall and writeback.
+display_name: Shore 长期记忆桥接
+description: 将 AstrBot 接入 Shore Memory，实现跨会话的长期记忆召回与写回。
 version: 0.2.0
 author: OpenAI Codex
 repo: https://github.com/Youzini-afk/astrbot_plugin_shore_bridge

@@ -1,156 +1,171 @@
 {
   "enabled": {
-    "description": "Enable Shore memory bridge hooks",
+    "description": "启用 Shore Memory 桥接（记忆召回与写回）",
     "type": "bool",
     "default": true
   },
   "service_base_url": {
-    "description": "Shore Memory Service base URL",
+    "description": "Shore Memory 服务的基础 URL",
+    "hint": "例如：http://127.0.0.1:7811",
     "type": "string",
     "default": "http://127.0.0.1:7811"
   },
   "api_key": {
-    "description": "Optional API key for Shore Memory Service",
+    "description": "Shore Memory 服务的 API Key（可选）",
+    "hint": "若服务端启用了 PMS_API_KEY 鉴权，则需要在此处填写对应值",
     "type": "string",
     "default": ""
   },
   "api_key_mode": {
-    "description": "Authentication header mode: both, bearer, or x-api-key",
+    "description": "API Key 请求头方式",
+    "hint": "可选值：both / bearer / x-api-key。both 表示两种头都附带",
     "type": "string",
     "default": "both"
   },
   "agent_id": {
-    "description": "Default agent identifier used in Shore",
+    "description": "默认使用的 Shore agent_id（人格/记忆空间标识）",
     "type": "string",
     "default": "shore"
   },
   "platform_agent_map_json": {
-    "description": "Optional JSON object that maps platform id or platform name to a Shore agent_id",
+    "description": "按平台映射到不同 agent_id 的 JSON（可选）",
+    "hint": "示例：{\"qq\": \"shore-qq\", \"discord\": \"shore-discord\"}。留空则所有平台共用上面的默认 agent_id",
     "type": "text",
     "default": ""
   },
   "recall_limit": {
-    "description": "How many memories to request per recall",
+    "description": "每次召回请求返回的记忆条数上限",
     "type": "int",
     "default": 8
   },
   "recall_recipe": {
-    "description": "Optional Shore recall recipe such as fast, hybrid, entity_heavy, or contiguous",
+    "description": "Shore 召回配方（可选）",
+    "hint": "可选值：fast / hybrid / entity_heavy / contiguous。留空则使用服务端默认配方",
     "type": "string",
     "default": ""
   },
   "recall_selected_scopes": {
-    "description": "Comma separated extra Shore scopes to include during recall, such as private or group",
+    "description": "召回时额外包含的作用域（逗号分隔）",
+    "hint": "可选值：private, group, shared, system。是否允许跨作用域以及得分衰减权重由服务端配置 PMS_SCOPE_RECALL_RULES 决定",
     "type": "string",
     "default": ""
   },
   "recall_debug": {
-    "description": "Enable Shore recall debug mode",
+    "description": "开启召回调试模式",
+    "hint": "启用后服务端会返回各信号得分、作用域权重等详细字段，便于排查召回效果",
     "type": "bool",
     "default": false
   },
   "inject_agent_state": {
-    "description": "Include mood, vibe and mind in recall prompt block",
+    "description": "在召回提示块中注入 Shore 的心情 / 氛围 / 念头等人格状态",
     "type": "bool",
     "default": true
   },
   "inject_mode": {
-    "description": "Inject recall into system or user side prompt",
+    "description": "召回内容注入到哪一侧的提示",
+    "hint": "可选值：system（注入到系统提示）/ user（注入到用户消息前）",
     "type": "string",
     "default": "system"
   },
   "recall_min_score": {
-    "description": "Drop recalled memory snippets below this score",
+    "description": "低于该分数的召回记忆片段会被丢弃",
+    "hint": "取值范围约 0.0 – 1.0，默认 0.0 表示不过滤",
     "type": "float",
     "default": 0.0
   },
   "recall_max_chars": {
-    "description": "Maximum prompt characters reserved for Shore recall blocks",
+    "description": "召回提示块可占用的最大字符数",
     "type": "int",
     "default": 1600
   },
   "recall_include_entities": {
-    "description": "Append recalled entity hints when available",
+    "description": "在召回提示中附加相关实体提示",
     "type": "bool",
     "default": true
   },
   "recall_context_messages": {
-    "description": "How many recent user or assistant turns are folded into recall query construction",
+    "description": "召回查询时合并的最近对话轮数",
+    "hint": "将近 N 轮用户/助手消息纳入检索查询，可提升上下文召回准确度",
     "type": "int",
     "default": 4
   },
   "recall_on_empty_message": {
-    "description": "Allow recall even when the current event has no plain text",
+    "description": "当前事件没有纯文本时仍触发召回",
     "type": "bool",
     "default": true
   },
   "degraded_notice": {
-    "description": "Surface a caution line when Shore marks the recall as degraded",
+    "description": "Shore 将召回标记为降级时向用户提示一条警告",
     "type": "bool",
     "default": true
   },
   "writeback_enabled": {
-    "description": "Write completed turns back to memory service",
+    "description": "将已完成的对话轮次写回 Shore 作为长期记忆",
     "type": "bool",
     "default": true
   },
   "writeback_max_retries": {
-    "description": "How many times background writeback retries failed Shore turn requests",
+    "description": "Shore 写回失败时的最大重试次数",
     "type": "int",
     "default": 3
   },
   "writeback_queue_size": {
-    "description": "Maximum queued turns waiting for Shore writeback",
+    "description": "等待写回的对话轮次排队上限",
+    "hint": "超过后新的轮次会被丢弃并打印告警，避免内存压力过大",
     "type": "int",
     "default": 128
   },
   "session_idle_minutes": {
-    "description": "Minutes of inactivity before the plugin rotates to a new Shore session bucket",
+    "description": "空闲多少分钟后切换到新的 Shore 会话分桶",
     "type": "int",
     "default": 30
   },
   "commands_enabled": {
-    "description": "Enable the /shore command group",
+    "description": "启用 /shore 命令组（ping / status / recall / remember / forget / state / mute / unmute）",
     "type": "bool",
     "default": true
   },
   "events_ws_enabled": {
-    "description": "Subscribe to Shore websocket events in the background",
+    "description": "后台订阅 Shore 的 WebSocket 事件流",
+    "hint": "启用后可在日志中看到 Shore 推送的记忆/反思等事件",
     "type": "bool",
     "default": false
   },
   "events_ws_log_types": {
-    "description": "Comma separated Shore event names to log. Empty means log all events.",
+    "description": "要打印日志的 Shore 事件名（逗号分隔）",
+    "hint": "留空表示打印全部事件",
     "type": "string",
     "default": ""
   },
   "remember_default_scope": {
-    "description": "Default scope for /shore remember: auto, private, group, shared, or system",
+    "description": "/shore remember 命令的默认作用域",
+    "hint": "可选值：auto / private / group / shared / system。auto 会根据当前会话类型推断",
     "type": "string",
     "default": "auto"
   },
   "connect_timeout_seconds": {
-    "description": "HTTP connect timeout used by Shore requests",
+    "description": "HTTP 连接超时（秒）",
     "type": "float",
     "default": 2.0
   },
   "recall_read_timeout_seconds": {
-    "description": "HTTP read timeout used by Shore recall requests",
+    "description": "召回请求的 HTTP 读取超时（秒）",
     "type": "float",
     "default": 4.0
   },
   "writeback_read_timeout_seconds": {
-    "description": "HTTP read timeout used by Shore writeback requests",
+    "description": "写回请求的 HTTP 读取超时（秒）",
     "type": "float",
     "default": 8.0
   },
   "command_read_timeout_seconds": {
-    "description": "HTTP read timeout used by manual Shore commands",
+    "description": "手动命令（/shore ...）的 HTTP 读取超时（秒）",
     "type": "float",
     "default": 6.0
   },
   "request_id_prefix": {
-    "description": "Prefix used when generating x-request-id values for Shore requests",
+    "description": "生成 Shore 请求 x-request-id 时使用的前缀",
+    "hint": "用于在 Shore 服务端日志中快速定位由本插件发起的请求",
     "type": "string",
     "default": "shore-bridge"
   }
