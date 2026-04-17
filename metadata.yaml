@@ -3,5 +3,5 @@ display_name: Shore Memory Bridge
 description: Connect AstrBot to Shore Memory for long-term recall and writeback.
 version: 0.2.0
 author: OpenAI Codex
-repo: https://example.invalid/astrbot_plugin_shore_bridge
+repo: https://github.com/Youzini-afk/astrbot_plugin_shore_bridge
 astrbot_version: ">=4.18,<5"
