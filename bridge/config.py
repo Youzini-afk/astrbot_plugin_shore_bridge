@@ -87,6 +87,18 @@ def _parse_csv(value: Any) -> tuple[str, ...]:
     return tuple(items)
 
 
+def _parse_scope_csv(value: Any) -> tuple[str, ...]:
+    allowed = {"private", "group", "shared", "system"}
+    items: list[str] = []
+    seen: set[str] = set()
+    for item in _parse_csv(value):
+        normalized = item.lower()
+        if normalized in allowed and normalized not in seen:
+            seen.add(normalized)
+            items.append(normalized)
+    return tuple(items)
+
+
 @dataclass(slots=True)
 class BridgeConfig:
     enabled: bool = True
@@ -97,6 +109,7 @@ class BridgeConfig:
     platform_agent_map: dict[str, str] = field(default_factory=dict)
     recall_limit: int = 8
     recall_recipe: str = ""
+    recall_selected_scopes: tuple[str, ...] = field(default_factory=tuple)
     recall_debug: bool = False
     inject_agent_state: bool = True
     inject_mode: str = "system"
@@ -149,6 +162,7 @@ class BridgeConfig:
             ),
             recall_limit=_as_int(data.get("recall_limit", 8), 8, minimum=1),
             recall_recipe=_as_str(data.get("recall_recipe", ""), ""),
+            recall_selected_scopes=_parse_scope_csv(data.get("recall_selected_scopes", "")),
             recall_debug=_as_bool(data.get("recall_debug", False), False),
             inject_agent_state=_as_bool(data.get("inject_agent_state", True), True),
             inject_mode=inject_mode,

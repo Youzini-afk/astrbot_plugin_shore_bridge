@@ -15,6 +15,7 @@ class BridgeConfigTest(unittest.TestCase):
             {
                 "api_key_mode": "x-api-key",
                 "platform_agent_map_json": '{"qq": "shore-qq", "discord": "shore-discord"}',
+                "recall_selected_scopes": "private, group, invalid",
                 "recall_debug": True,
                 "connect_timeout_seconds": 1.5,
                 "session_idle_minutes": 45,
@@ -25,6 +26,7 @@ class BridgeConfigTest(unittest.TestCase):
         self.assertEqual(settings.platform_agent_map["qq"], "shore-qq")
         self.assertEqual(settings.resolve_agent_id("QQ", "none"), "shore-qq")
         self.assertEqual(settings.resolve_agent_id("missing", "DISCORD"), "shore-discord")
+        self.assertEqual(settings.recall_selected_scopes, ("private", "group"))
         self.assertTrue(settings.recall_debug)
         self.assertAlmostEqual(settings.connect_timeout_seconds, 1.5)
         self.assertEqual(settings.session_idle_minutes, 45)

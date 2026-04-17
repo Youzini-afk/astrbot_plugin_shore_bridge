@@ -39,6 +39,11 @@
     "type": "string",
     "default": ""
   },
+  "recall_selected_scopes": {
+    "description": "Comma separated extra Shore scopes to include during recall, such as private or group",
+    "type": "string",
+    "default": ""
+  },
   "recall_debug": {
     "description": "Enable Shore recall debug mode",
     "type": "bool",

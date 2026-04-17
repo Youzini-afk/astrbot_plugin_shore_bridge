@@ -401,6 +401,8 @@ class Main(star.Star):
         }
         if self._settings.recall_recipe:
             payload["recipe"] = self._settings.recall_recipe
+        if self._settings.recall_selected_scopes:
+            payload["selected_scopes"] = list(self._settings.recall_selected_scopes)
         if self._settings.recall_debug:
             payload["debug"] = True
         try:
