@@ -51,6 +51,32 @@ class IdentityAndWritebackTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(first.session_uid, second.session_uid)
         self.assertEqual(first.scope_hint, "group")
         self.assertEqual(first.channel_uid, "qq:group:g1")
+        self.assertEqual(first.actor_account_uid, "qq:account:u1")
+        self.assertEqual(first.actor_person_uid, "qq:person:u1")
+        self.assertEqual(first.subject_person_uid, "qq:person:u1")
+        self.assertEqual(first.source_platform, "qq")
+        self.assertTrue(first.observation_at)
+        self.assertEqual(
+            first.domain_payload(),
+            {
+                "kind": "channel_shared",
+                "key": "qq:group:g1",
+                "platform": "qq",
+                "channel_uid": "qq:group:g1",
+                "session_uid": first.session_uid,
+                "person_uid": None,
+            },
+        )
+        self.assertEqual(
+            first.alias_hints_payload(),
+            [
+                {
+                    "account_uid": "qq:account:u1",
+                    "person_uid": "qq:person:u1",
+                    "confidence": 1.0,
+                }
+            ],
+        )
 
     async def test_background_writeback_retries_once(self) -> None:
         attempts: list[str] = []

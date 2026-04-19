@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timezone
 from dataclasses import dataclass
 import time
 from typing import Any
@@ -18,6 +19,49 @@ class BridgeIdentity:
     channel_uid: str
     session_uid: str
     scope_hint: str
+    actor_account_uid: str
+    actor_person_uid: str
+    subject_person_uid: str
+    source_platform: str
+    observation_at: str
+
+    def domain_payload(self, *, scope: str | None = None) -> dict[str, Any]:
+        resolved_scope = str(scope or self.scope_hint or "").strip().lower()
+        if resolved_scope == "private":
+            return {
+                "kind": "platform_person",
+                "key": self.actor_person_uid,
+                "platform": self.source_platform,
+                "channel_uid": self.channel_uid,
+                "session_uid": self.session_uid,
+                "person_uid": self.actor_person_uid,
+            }
+        if resolved_scope == "group":
+            return {
+                "kind": "channel_shared",
+                "key": self.channel_uid,
+                "platform": self.source_platform,
+                "channel_uid": self.channel_uid,
+                "session_uid": self.session_uid,
+                "person_uid": None,
+            }
+        return {
+            "kind": "session_thread",
+            "key": self.session_uid,
+            "platform": self.source_platform,
+            "channel_uid": self.channel_uid,
+            "session_uid": self.session_uid,
+            "person_uid": self.actor_person_uid,
+        }
+
+    def alias_hints_payload(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "account_uid": self.actor_account_uid,
+                "person_uid": self.actor_person_uid,
+                "confidence": 1.0,
+            }
+        ]
 
 
 class SessionBucketStore:
@@ -42,6 +86,9 @@ class SessionBucketStore:
         )
         raw_session_uid = getattr(event, "unified_msg_origin", None) or channel_uid
         session_uid = await self._bucketize(raw_session_uid)
+        actor_account_uid = f"{platform}:account:{sender_id}"
+        actor_person_uid = f"{platform}:person:{sender_id}"
+        observation_at = self._observation_at(event)
         return BridgeIdentity(
             platform=str(platform),
             platform_name=str(platform_name),
@@ -53,6 +100,11 @@ class SessionBucketStore:
             channel_uid=channel_uid,
             session_uid=session_uid,
             scope_hint=scope_hint,
+            actor_account_uid=actor_account_uid,
+            actor_person_uid=actor_person_uid,
+            subject_person_uid=actor_person_uid,
+            source_platform=str(platform),
+            observation_at=observation_at,
         )
 
     async def _bucketize(self, raw_session_uid: str) -> str:
@@ -75,3 +127,18 @@ class SessionBucketStore:
             except Exception:
                 return None
         return None
+
+    @staticmethod
+    def _observation_at(event: Any) -> str:
+        raw = getattr(event, "created_at", None)
+        if isinstance(raw, datetime):
+            dt = raw if raw.tzinfo is not None else raw.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+        if isinstance(raw, (int, float)):
+            return datetime.fromtimestamp(float(raw), tz=timezone.utc).isoformat().replace(
+                "+00:00", "Z"
+            )
+        text = str(raw or "").strip()
+        if text:
+            return text
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
